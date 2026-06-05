@@ -8,37 +8,39 @@ O sistema simula um módulo de apoio à tomada de decisão para uma empresa meta
 Ele recebe dados sobre materiais, pedido, custo, prazo e produção semanal para ajudar a
 decidir se uma peça metálica pode ser produzida.
 
-> Para uma explicação **linha a linha** do código (ideal para quem está aprendendo e quer
+> Para uma explicação **parte por parte** do código (ideal para quem está aprendendo e quer
 > replicar), veja o arquivo [`documento-explicativo.md`](documento-explicativo.md).
 
 ## Funcionalidades
 
-- Cadastro de materiais disponíveis em estoque.
+- Cadastro de materiais disponíveis em estoque (conjunto sem duplicados).
 - Cadastro de materiais necessários para fabricar uma peça.
-- Verificação dos materiais faltantes (diferença entre as duas listas).
-- Cálculo de custo total do pedido.
-- Classificação do pedido usando regras lógicas.
-- Simulação simples de risco de atraso.
-- Análise de produção semanal usando matriz.
+- Operações de conjuntos: união, interseção e diferença (materiais faltantes).
+- Cálculo de custo total do pedido com verificação de orçamento.
+- Classificação do pedido usando regras lógicas (PENDENTE, RECUSADO, ALERTA, APROVADO).
+- Simulação de risco de atraso gerando vários cenários de prazo.
+- Análise de produção semanal usando vetores e matriz, com total, média e setor crítico.
 
 ## Conceitos do desafio atendidos
 
-- **(a) Conjuntos e operações:** listas de materiais (`ArrayList`) e cálculo da diferença
-  `necessários − disponíveis` usando `contains`, com normalização por `toLowerCase()`.
-- **(b) Funções e regras de transformação:** cálculo do custo (`quantidade * custoUnitario`)
-  e reuso da mesma lógica de cadastro para listas diferentes.
-- **(c) Lógica matemática aplicada à decisão:** classificação do pedido com `if / else if`
-  e operadores lógicos (`!`, `>`, `<`).
-- **(d) Probabilidade/simulação:** percentual de risco de atraso somando fatores (50% + 30% + 20%).
-- **(e) Vetores e matrizes:** matriz `producaoSemanal` percorrida com laços `for` encaixados
-  para somar totais e calcular médias.
+- **(a) Conjuntos e operações:** dois `LinkedHashSet` de materiais; métodos `calcularUniao`,
+  `calcularIntersecao` e `calcularDiferenca`; duplicados eliminados automaticamente pelo `Set`
+  e normalização com `trim()` + `toLowerCase()`.
+- **(b) Funções e regras de transformação:** lógica separada em métodos que recebem dados e
+  retornam resultados (`calcularCustoTotal`, `calcularPercentualRisco`, `cadastrarMateriais`).
+- **(c) Lógica matemática aplicada à decisão:** `classificarPedido` avalia múltiplas condições
+  e `validarDadosDoPedido` valida a entrada com operadores lógicos.
+- **(d) Probabilidade/simulação:** `simularRiscoAtraso` usa um laço para gerar cenários de prazo
+  e `calcularPercentualRisco` estima o risco com base na capacidade diária e em fatores de risco.
+- **(e) Vetores e matrizes:** vetores `setores` e `diasSemana` e a matriz `producaoSemanal`,
+  percorridos com laços `for` aninhados.
 
 ## Requisitos técnicos atendidos
 
-- Entrada de dados pelo usuário via console (`Scanner`).
-- Saída clara e interpretável (mensagens e títulos no terminal).
-- Código organizado por um menu (`switch/case`).
-- Estruturas de decisão (`if`, `switch`) e repetição (`do-while`, `for`).
+- Entrada de dados pelo usuário via console, com leitura validada (`lerInteiro`, `lerDouble`).
+- Saída clara e interpretável (títulos, tabela alinhada com `printf`, valores formatados).
+- Código organizado em **métodos**, separando responsabilidades e evitando repetição.
+- Estruturas de decisão (`if/else if`, `switch`) e repetição (`do-while`, `for`, `while`).
 
 ## Estrutura
 
@@ -67,23 +69,23 @@ java -cp src Main
 ## Menu do sistema
 
 ```text
-1 - Cadastrar materiais disponiveis
-2 - Cadastrar materiais necessarios
-3 - Verificar materiais faltantes
-4 - Calcular custo do pedido
-5 - Classificar pedido
-6 - Simular risco de atraso
-7 - Mostrar producao semanal
-0 - Sair
+1. Cadastrar materiais disponiveis
+2. Cadastrar materiais necessarios
+3. Verificar materiais faltantes
+4. Calcular custo do pedido
+5. Classificar pedido
+6. Simular risco de atraso
+7. Mostrar producao semanal
+0. Sair
 ```
 
 ## Sugestão para demonstração
 
-1. Opção 1 — cadastre materiais disponíveis: `aco`, `aluminio`, `tinta`.
+1. Opção 1 — cadastre materiais disponíveis: `aco`, `aluminio`, `tinta` (tente repetir um para ver o conjunto ignorar o duplicado).
 2. Opção 2 — cadastre materiais necessários: `aco`, `aluminio`, `parafuso`.
-3. Opção 3 — verifique os materiais faltantes (deve aparecer `parafuso`).
-4. Opção 4 — informe quantidade, custo unitário e orçamento.
-5. Opção 5 — informe o prazo e classifique o pedido.
-6. Opção 6 — simule o risco de atraso.
-7. Opção 7 — veja a produção semanal (totais e médias por máquina).
+3. Opção 3 — veja união, interseção e diferença (faltante: `parafuso`).
+4. Opção 4 — informe quantidade, custo unitário, orçamento e prazo.
+5. Opção 5 — classifique o pedido.
+6. Opção 6 — simule o risco de atraso em diferentes prazos.
+7. Opção 7 — veja a produção semanal (totais, média geral e setor com menor produção).
 0. Opção 0 — encerre o sistema.

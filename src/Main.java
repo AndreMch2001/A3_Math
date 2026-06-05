@@ -1,228 +1,323 @@
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Scanner;
 import java.util.Set;
 
 public class Main {
+    private static final Scanner scanner = new Scanner(System.in);
+
+    private static final Set<String> materiaisDisponiveis = new LinkedHashSet<>();
+    private static final Set<String> materiaisNecessarios = new LinkedHashSet<>();
+
+    private static int quantidadePecas = 0;
+    private static int prazoDias = 0;
+    private static double custoUnitario = 0.0;
+    private static double orcamentoDisponivel = 0.0;
+
+    private static final String[] setores = {"Corte", "Solda", "Pintura"};
+    private static final String[] diasSemana = {"Segunda", "Terca", "Quarta", "Quinta", "Sexta"};
+    private static final int[][] producaoSemanal = {
+            {18, 20, 17, 22, 19},
+            {14, 16, 15, 18, 17},
+            {11, 13, 12, 14, 15}
+    };
 
     public static void main(String[] args) {
-
-        Scanner sc = new Scanner(System.in);
-
-        ArrayList<String> materiaisDisponiveis = new ArrayList<>();
-        ArrayList<String> materiaisNecessarios = new ArrayList<>();
-        ArrayList<String> materiaisFaltantes = new ArrayList<>();
-
-        int[][] producaoSemanal = {
-                {10, 12, 15, 11, 14},
-                {20, 18, 22, 19, 25},
-                {8, 7, 9, 10, 6}
-        };
-
-        double custoTotal = 0;
-        double orcamento = 0;
-        int prazo = 0;
-
         int opcao;
 
         do {
-
-            System.out.println("\n========== MENU DO SISTEMA ==========");
-            System.out.println("1 - Cadastrar materiais disponiveis");
-            System.out.println("2 - Cadastrar materiais necessarios");
-            System.out.println("3 - Verificar materiais faltantes");
-            System.out.println("4 - Calcular custo do pedido");
-            System.out.println("5 - Classificar pedido");
-            System.out.println("6 - Simular risco de atraso");
-            System.out.println("7 - Mostrar producao semanal");
-            System.out.println("0 - Sair");
-            System.out.print("Escolha uma opcao: ");
-
-            opcao = sc.nextInt();
-            sc.nextLine();
+            mostrarMenu();
+            opcao = lerInteiro("Escolha uma opcao: ");
 
             switch (opcao) {
-
                 case 1:
-
-                    System.out.print("Quantos materiais deseja cadastrar? ");
-                    int qtdDisponiveis = sc.nextInt();
-                    sc.nextLine();
-
-                    for (int i = 0; i < qtdDisponiveis; i++) {
-
-                        System.out.print("Digite o material: ");
-                        String material = sc.nextLine().toLowerCase();
-
-                        materiaisDisponiveis.add(material);
-                    }
-
-                    System.out.println("Materiais cadastrados com sucesso!");
+                    cadastrarMateriais(materiaisDisponiveis, "disponiveis em estoque");
                     break;
-
                 case 2:
-
-                    System.out.print("Quantos materiais sao necessarios? ");
-                    int qtdNecessarios = sc.nextInt();
-                    sc.nextLine();
-
-                    for (int i = 0; i < qtdNecessarios; i++) {
-
-                        System.out.print("Digite o material necessario: ");
-                        String material = sc.nextLine().toLowerCase();
-
-                        materiaisNecessarios.add(material);
-                    }
-
-                    System.out.println("Materiais necessarios cadastrados!");
+                    cadastrarMateriais(materiaisNecessarios, "necessarios para a peca");
                     break;
-
                 case 3:
-
-                    materiaisFaltantes.clear();
-
-                    for (String material : materiaisNecessarios) {
-
-                        if (!materiaisDisponiveis.contains(material)) {
-                            materiaisFaltantes.add(material);
-                        }
-                    }
-
-                    System.out.println("\n===== RESULTADO =====");
-
-                    if (materiaisFaltantes.isEmpty()) {
-                        System.out.println("Todos os materiais estao disponiveis.");
-                    } else {
-
-                        System.out.println("Materiais faltantes:");
-
-                        for (String faltante : materiaisFaltantes) {
-                            System.out.println("- " + faltante);
-                        }
-                    }
-
+                    verificarMateriais();
                     break;
-
                 case 4:
-
-                    System.out.print("Digite a quantidade de pecas: ");
-                    int quantidade = sc.nextInt();
-
-                    System.out.print("Digite o custo unitario: ");
-                    double custoUnitario = sc.nextDouble();
-
-                    System.out.print("Digite o orcamento disponivel: ");
-                    orcamento = sc.nextDouble();
-
-                    custoTotal = quantidade * custoUnitario;
-
-                    System.out.println("\n===== CUSTO TOTAL =====");
-                    System.out.println("Custo total do pedido: R$ " + custoTotal);
-
-                    if (custoTotal > orcamento) {
-                        System.out.println("O custo ultrapassou o orcamento!");
-                    } else {
-                        System.out.println("O custo esta dentro do orcamento.");
-                    }
-
+                    calcularCustoPedido();
                     break;
-
                 case 5:
-
-                    System.out.print("Digite o prazo em dias: ");
-                    prazo = sc.nextInt();
-
-                    System.out.println("\n===== CLASSIFICACAO =====");
-
-                    if (!materiaisFaltantes.isEmpty()) {
-
-                        System.out.println("Pedido INVIAVEL.");
-                        System.out.println("Motivo: falta de materiais.");
-
-                    } else if (custoTotal > orcamento) {
-
-                        System.out.println("Pedido NAO RECOMENDADO.");
-                        System.out.println("Motivo: custo acima do orcamento.");
-
-                    } else if (prazo < 5) {
-
-                        System.out.println("Pedido de ALTO RISCO.");
-                        System.out.println("Motivo: prazo muito curto.");
-
-                    } else {
-
-                        System.out.println("Pedido APROVADO.");
-                    }
-
+                    classificarPedido();
                     break;
-
                 case 6:
-
-                    double risco = 0;
-
-                    if (!materiaisFaltantes.isEmpty()) {
-                        risco += 50;
-                    }
-
-                    if (prazo < 5) {
-                        risco += 30;
-                    }
-
-                    if (custoTotal > orcamento) {
-                        risco += 20;
-                    }
-
-                    System.out.println("\n===== ANALISE DE RISCO =====");
-                    System.out.println("Risco calculado: " + risco + "%");
-
-                    if (risco <= 30) {
-                        System.out.println("Baixo risco de atraso.");
-                    } else if (risco <= 70) {
-                        System.out.println("Medio risco de atraso.");
-                    } else {
-                        System.out.println("Alto risco de atraso.");
-                    }
-
+                    simularRiscoAtraso();
                     break;
-
                 case 7:
-
-                    System.out.println("\n===== PRODUCAO SEMANAL =====");
-
-                    for (int i = 0; i < producaoSemanal.length; i++) {
-
-                        int soma = 0;
-
-                        System.out.println("\nMaquina " + (i + 1));
-
-                        for (int j = 0; j < producaoSemanal[i].length; j++) {
-
-                            System.out.println("Dia " + (j + 1) + ": "
-                                    + producaoSemanal[i][j] + " pecas");
-
-                            soma += producaoSemanal[i][j];
-                        }
-
-                        double media = (double) soma / producaoSemanal[i].length;
-
-                        System.out.println("Total produzido: " + soma);
-                        System.out.println("Media semanal: " + media);
-                    }
-
+                    mostrarProducaoSemanal();
                     break;
-
                 case 0:
-
-                    System.out.println("Encerrando sistema...");
+                    System.out.println("Sistema encerrado.");
                     break;
-
                 default:
-
-                    System.out.println("Opcao invalida!");
+                    System.out.println("Opcao invalida. Tente novamente.");
+                    break;
             }
-
         } while (opcao != 0);
 
-        sc.close();
+        scanner.close();
+    }
+
+    private static void mostrarMenu() {
+        System.out.println();
+        System.out.println("=== Sistema de Apoio a Producao de Pecas Metalicas ===");
+        System.out.println("1. Cadastrar materiais disponiveis");
+        System.out.println("2. Cadastrar materiais necessarios");
+        System.out.println("3. Verificar materiais faltantes");
+        System.out.println("4. Calcular custo do pedido");
+        System.out.println("5. Classificar pedido");
+        System.out.println("6. Simular risco de atraso");
+        System.out.println("7. Mostrar producao semanal");
+        System.out.println("0. Sair");
+    }
+
+    private static void cadastrarMateriais(Set<String> conjunto, String descricao) {
+        int quantidade = lerInteiro("Quantos materiais " + descricao + " deseja cadastrar? ");
+
+        for (int i = 1; i <= quantidade; i++) {
+            System.out.print("Material " + i + ": ");
+            String material = normalizarMaterial(scanner.nextLine());
+
+            if (material.isEmpty()) {
+                System.out.println("Material vazio ignorado.");
+            } else if (conjunto.add(material)) {
+                System.out.println("Material cadastrado.");
+            } else {
+                System.out.println("Material duplicado ignorado pelo conjunto.");
+            }
+        }
+
+        System.out.println("Materiais " + descricao + ": " + conjunto);
+    }
+
+    private static String normalizarMaterial(String material) {
+        return material.trim().toLowerCase();
+    }
+
+    private static void verificarMateriais() {
+        Set<String> uniao = calcularUniao(materiaisDisponiveis, materiaisNecessarios);
+        Set<String> intersecao = calcularIntersecao(materiaisDisponiveis, materiaisNecessarios);
+        Set<String> faltantes = calcularDiferenca(materiaisNecessarios, materiaisDisponiveis);
+
+        System.out.println();
+        System.out.println("Materiais disponiveis: " + materiaisDisponiveis);
+        System.out.println("Materiais necessarios: " + materiaisNecessarios);
+        System.out.println("Uniao dos conjuntos: " + uniao);
+        System.out.println("Intersecao (materiais atendidos): " + intersecao);
+        System.out.println("Diferenca (materiais faltantes): " + faltantes);
+
+        if (faltantes.isEmpty()) {
+            System.out.println("Todos os materiais necessarios estao disponiveis.");
+        } else {
+            System.out.println("Existem materiais faltantes para iniciar a producao.");
+        }
+    }
+
+    private static Set<String> calcularUniao(Set<String> primeiro, Set<String> segundo) {
+        Set<String> resultado = new LinkedHashSet<>(primeiro);
+        resultado.addAll(segundo);
+        return resultado;
+    }
+
+    private static Set<String> calcularIntersecao(Set<String> primeiro, Set<String> segundo) {
+        Set<String> resultado = new LinkedHashSet<>(primeiro);
+        resultado.retainAll(segundo);
+        return resultado;
+    }
+
+    private static Set<String> calcularDiferenca(Set<String> primeiro, Set<String> segundo) {
+        Set<String> resultado = new LinkedHashSet<>(primeiro);
+        resultado.removeAll(segundo);
+        return resultado;
+    }
+
+    private static void calcularCustoPedido() {
+        quantidadePecas = lerInteiro("Quantidade de pecas solicitadas: ");
+        custoUnitario = lerDouble("Custo unitario estimado da peca: R$ ");
+        orcamentoDisponivel = lerDouble("Orcamento disponivel do cliente: R$ ");
+        prazoDias = lerInteiro("Prazo de entrega em dias: ");
+
+        double custoTotal = calcularCustoTotal(quantidadePecas, custoUnitario);
+        System.out.printf("Custo total estimado: R$ %.2f%n", custoTotal);
+
+        if (custoTotal <= orcamentoDisponivel) {
+            System.out.println("O custo esta dentro do orcamento.");
+        } else {
+            System.out.println("O custo ultrapassa o orcamento disponivel.");
+        }
+    }
+
+    private static double calcularCustoTotal(int quantidade, double custoPorPeca) {
+        return quantidade * custoPorPeca;
+    }
+
+    private static void classificarPedido() {
+        validarDadosDoPedido();
+
+        Set<String> faltantes = calcularDiferenca(materiaisNecessarios, materiaisDisponiveis);
+        double custoTotal = calcularCustoTotal(quantidadePecas, custoUnitario);
+        int risco = calcularPercentualRisco(quantidadePecas, prazoDias, !faltantes.isEmpty(), custoTotal > orcamentoDisponivel);
+
+        System.out.println();
+        System.out.println("=== Classificacao do Pedido ===");
+        System.out.printf("Custo total: R$ %.2f%n", custoTotal);
+        System.out.println("Risco de atraso: " + risco + "% - " + classificarRisco(risco));
+
+        if (!faltantes.isEmpty()) {
+            System.out.println("Status: PENDENTE - faltam materiais: " + faltantes);
+        } else if (custoTotal > orcamentoDisponivel) {
+            System.out.println("Status: RECUSADO - custo acima do orcamento.");
+        } else if (risco >= 70) {
+            System.out.println("Status: APROVACAO COM ALERTA - risco alto de atraso.");
+        } else {
+            System.out.println("Status: APROVADO - pedido viavel para producao.");
+        }
+    }
+
+    private static void simularRiscoAtraso() {
+        validarDadosDoPedido();
+
+        Set<String> faltantes = calcularDiferenca(materiaisNecessarios, materiaisDisponiveis);
+        double custoTotal = calcularCustoTotal(quantidadePecas, custoUnitario);
+        boolean possuiFaltantes = !faltantes.isEmpty();
+        boolean custoAcima = custoTotal > orcamentoDisponivel;
+
+        System.out.println();
+        System.out.println("=== Simulacao de Risco de Atraso ===");
+        System.out.println("Capacidade estimada: 25 pecas por dia.");
+
+        for (int ajustePrazo = -1; ajustePrazo <= 1; ajustePrazo++) {
+            int prazoSimulado = Math.max(1, prazoDias + ajustePrazo);
+            int risco = calcularPercentualRisco(quantidadePecas, prazoSimulado, possuiFaltantes, custoAcima);
+            System.out.println("Prazo de " + prazoSimulado + " dia(s): " + risco + "% - " + classificarRisco(risco));
+        }
+
+        System.out.println("Cenarios gerados com repeticao para apoiar a decisao do pedido.");
+    }
+
+    private static int calcularPercentualRisco(int quantidade, int prazo, boolean possuiFaltantes, boolean custoAcima) {
+        int capacidadeDiaria = 25;
+        int diasNecessarios = (int) Math.ceil((double) quantidade / capacidadeDiaria);
+        int risco = 10;
+
+        if (prazo < diasNecessarios) {
+            risco += 45;
+        } else if (prazo == diasNecessarios) {
+            risco += 25;
+        } else {
+            risco += 10;
+        }
+
+        if (quantidade > 100) {
+            risco += 20;
+        } else if (quantidade > 50) {
+            risco += 10;
+        }
+
+        if (possuiFaltantes) {
+            risco += 25;
+        }
+
+        if (custoAcima) {
+            risco += 15;
+        }
+
+        return Math.min(risco, 95);
+    }
+
+    private static String classificarRisco(int risco) {
+        if (risco >= 70) {
+            return "alto";
+        } else if (risco >= 40) {
+            return "medio";
+        }
+        return "baixo";
+    }
+
+    private static void mostrarProducaoSemanal() {
+        System.out.println();
+        System.out.println("=== Producao Semanal por Setor ===");
+        System.out.print("Setor      ");
+
+        for (String dia : diasSemana) {
+            System.out.printf("%8s", dia);
+        }
+
+        System.out.println("   Total");
+
+        int totalGeral = 0;
+        int menorTotal = Integer.MAX_VALUE;
+        String setorComMenorProducao = "";
+
+        for (int i = 0; i < setores.length; i++) {
+            int totalSetor = 0;
+            System.out.printf("%-10s", setores[i]);
+
+            for (int j = 0; j < diasSemana.length; j++) {
+                System.out.printf("%8d", producaoSemanal[i][j]);
+                totalSetor += producaoSemanal[i][j];
+            }
+
+            totalGeral += totalSetor;
+            System.out.printf("%8d%n", totalSetor);
+
+            if (totalSetor < menorTotal) {
+                menorTotal = totalSetor;
+                setorComMenorProducao = setores[i];
+            }
+        }
+
+        double mediaGeral = (double) totalGeral / (setores.length * diasSemana.length);
+        System.out.println("Total geral produzido: " + totalGeral + " pecas");
+        System.out.printf("Media diaria geral: %.2f pecas%n", mediaGeral);
+        System.out.println("Setor com menor producao: " + setorComMenorProducao + " (" + menorTotal + " pecas)");
+    }
+
+    private static void validarDadosDoPedido() {
+        if (quantidadePecas <= 0 || custoUnitario <= 0 || orcamentoDisponivel <= 0 || prazoDias <= 0) {
+            System.out.println("Dados do pedido ainda nao cadastrados. Informe os dados agora.");
+            quantidadePecas = lerInteiro("Quantidade de pecas solicitadas: ");
+            custoUnitario = lerDouble("Custo unitario estimado da peca: R$ ");
+            orcamentoDisponivel = lerDouble("Orcamento disponivel do cliente: R$ ");
+            prazoDias = lerInteiro("Prazo de entrega em dias: ");
+        }
+    }
+
+    private static int lerInteiro(String mensagem) {
+        while (true) {
+            System.out.print(mensagem);
+            String entrada = scanner.nextLine();
+
+            try {
+                int valor = Integer.parseInt(entrada);
+                if (valor >= 0) {
+                    return valor;
+                }
+                System.out.println("Digite um numero inteiro maior ou igual a zero.");
+            } catch (NumberFormatException erro) {
+                System.out.println("Entrada invalida. Digite um numero inteiro.");
+            }
+        }
+    }
+
+    private static double lerDouble(String mensagem) {
+        while (true) {
+            System.out.print(mensagem);
+            String entrada = scanner.nextLine().replace(",", ".");
+
+            try {
+                double valor = Double.parseDouble(entrada);
+                if (valor >= 0) {
+                    return valor;
+                }
+                System.out.println("Digite um numero maior ou igual a zero.");
+            } catch (NumberFormatException erro) {
+                System.out.println("Entrada invalida. Digite um numero decimal.");
+            }
+        }
     }
 }
