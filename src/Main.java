@@ -5,14 +5,17 @@ import java.util.Set;
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
 
+    // [VITOR] Conjuntos (a) - estruturas de dados sem duplicados (Criterio 1)
     private static final Set<String> materiaisDisponiveis = new LinkedHashSet<>();
     private static final Set<String> materiaisNecessarios = new LinkedHashSet<>();
 
+    // Dados do pedido (usados por ANDRÉ na decisao e por WILLIAN na simulacão)
     private static int quantidadePecas = 0;
     private static int prazoDias = 0;
     private static double custoUnitario = 0.0;
     private static double orcamentoDisponivel = 0.0;
 
+    // [JONAS] Vetores e matriz (e) - estruturas linear e bidimensional (Criterio 5)
     private static final String[] setores = {"Corte", "Solda", "Pintura"};
     private static final String[] diasSemana = {"Segunda", "Terca", "Quarta", "Quinta", "Sexta"};
     private static final int[][] producaoSemanal = {
@@ -21,6 +24,9 @@ public class Main {
             {11, 13, 12, 14, 15}
     };
 
+    // ============================================================================
+    // INTRODUCÃO (VITOR abre) - main curto
+    // ============================================================================
     public static void main(String[] args) {
         int opcao;
 
@@ -75,6 +81,11 @@ public class Main {
         System.out.println("0. Sair");
     }
 
+    // ############################################################################
+    // # VITOR - CONJUNTOS E OPERACOES (item a) - CRITERIO 1
+    // # Cadastro com remoção de duplicados + união, interseção e diferença.
+    // ############################################################################
+
     private static void cadastrarMateriais(Set<String> conjunto, String descricao) {
         int quantidade = lerInteiro("Quantos materiais " + descricao + " deseja cadastrar? ");
 
@@ -117,23 +128,31 @@ public class Main {
         }
     }
 
+    // VITOR (a): UNIAO de conjuntos (addAll) - C1.1
     private static Set<String> calcularUniao(Set<String> primeiro, Set<String> segundo) {
         Set<String> resultado = new LinkedHashSet<>(primeiro);
         resultado.addAll(segundo);
         return resultado;
     }
 
+    // VITOR (a): INTERSECAO de conjuntos (retainAll) - C1.1
     private static Set<String> calcularIntersecao(Set<String> primeiro, Set<String> segundo) {
         Set<String> resultado = new LinkedHashSet<>(primeiro);
         resultado.retainAll(segundo);
         return resultado;
     }
 
+    // VITOR (a): DIFERENCA de conjuntos (removeAll) -> materiais faltantes - C1.1
     private static Set<String> calcularDiferenca(Set<String> primeiro, Set<String> segundo) {
         Set<String> resultado = new LinkedHashSet<>(primeiro);
         resultado.removeAll(segundo);
         return resultado;
     }
+
+    // ############################################################################
+    // # VITOR - FUNÇÕES E REGRAS DE TRANSFORMAÇÃO (item b) - CRITERIO 2 (8 pts)
+    // # Método que recebe dados, processa a regra matemática e retorna resultado.
+    // ############################################################################
 
     private static void calcularCustoPedido() {
         quantidadePecas = lerInteiro("Quantidade de pecas solicitadas: ");
@@ -151,9 +170,15 @@ public class Main {
         }
     }
 
+    // VITOR (b): funcao pura entrada -> processamento -> saida (retorno) - C2.1
     private static double calcularCustoTotal(int quantidade, double custoPorPeca) {
         return quantidade * custoPorPeca;
     }
+
+    // ############################################################################
+    // # ANDRE - LÓGICA MATEMÁTICA APLICADA A DECISÃO (c) - CRITERIO 3
+    // # Múltiplas condições (if/else if) para classificar o pedido.
+    // ############################################################################
 
     private static void classificarPedido() {
         validarDadosDoPedido();
@@ -178,6 +203,11 @@ public class Main {
         }
     }
 
+    // ############################################################################
+    // # WILLIAN - ANÁLISE COMBINATÓRIA / PROBABILIDADE (d) - CRITERIO 4
+    // # Laço gera cenários de prazo + algoritmo que calcula o risco de atraso.
+    // ############################################################################
+
     private static void simularRiscoAtraso() {
         validarDadosDoPedido();
 
@@ -199,6 +229,7 @@ public class Main {
         System.out.println("Cenarios gerados com repeticao para apoiar a decisao do pedido.");
     }
 
+    // WILLIAN (d): algoritmo que calcula/simula o percentual de risco - C4.1
     private static int calcularPercentualRisco(int quantidade, int prazo, boolean possuiFaltantes, boolean custoAcima) {
         int capacidadeDiaria = 25;
         int diasNecessarios = (int) Math.ceil((double) quantidade / capacidadeDiaria);
@@ -229,6 +260,7 @@ public class Main {
         return Math.min(risco, 95);
     }
 
+    // WILLIAN (d): traduz o percentual em baixo/medio/alto
     private static String classificarRisco(int risco) {
         if (risco >= 70) {
             return "alto";
@@ -237,6 +269,11 @@ public class Main {
         }
         return "baixo";
     }
+
+    // ############################################################################
+    // # JONAS - VETORES E MATRIZES (e) - CRITERIO 5
+    // # Dois laços for aninhados percorrem a matriz: total, média e setor crítico.
+    // ############################################################################
 
     private static void mostrarProducaoSemanal() {
         System.out.println();
@@ -277,6 +314,12 @@ public class Main {
         System.out.println("Setor com menor producao: " + setorComMenorProducao + " (" + menorTotal + " pecas)");
     }
 
+    // ############################################################################
+    // # MÉTODOS DE APOIO (infraestrutura usada por todos)
+    // # ANDRE pode citar a validação (C3) e VITOR a leitura segura de dados.
+    // ############################################################################
+
+    // ANDRE (c): validação com operador lógico OU (||) antes de decidir
     private static void validarDadosDoPedido() {
         if (quantidadePecas <= 0 || custoUnitario <= 0 || orcamentoDisponivel <= 0 || prazoDias <= 0) {
             System.out.println("Dados do pedido ainda nao cadastrados. Informe os dados agora.");
@@ -287,6 +330,7 @@ public class Main {
         }
     }
 
+    // VITOR: leitura segura de inteiro (repete até ser válido; try/catch não quebra)
     private static int lerInteiro(String mensagem) {
         while (true) {
             System.out.print(mensagem);
@@ -304,6 +348,7 @@ public class Main {
         }
     }
 
+    // VITOR: leitura segura de decimal (aceita vírgula ou ponto)
     private static double lerDouble(String mensagem) {
         while (true) {
             System.out.print(mensagem);
